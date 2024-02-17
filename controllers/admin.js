@@ -30,3 +30,37 @@ exports.getUser=(req,res,next)=>{
     })
     .catch(err=>console.log(err))
 }
+exports.loginUser = (req, res, next) => {
+  var myObj=req.body;
+  console.log(myObj)
+  console.log('hi')
+   
+  Userdetail.findAll({
+    where:{
+        email : myObj.email
+    }
+})
+.then(userdetail=>{
+   var response=""
+   var result=userdetail[0]
+   if(result==undefined){
+    res.status(404);
+    response='User does not exist'
+}
+else{
+    var pass= result.password
+    if(myObj.password=== pass){
+      res.status(200);
+        response='Logged in successfully'
+    }
+    else{
+      res.status(401);
+      response='Password  incorrect'
+
+    }
+}
+    console.log(userdetail[0])
+    res.json(response)       
+})
+.catch(err=>console.log(err))
+ };
