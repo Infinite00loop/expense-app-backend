@@ -1,11 +1,16 @@
 const Userdetail=require('../models/userdetail');
 
+const bcrypt=require('bcrypt');
+
 exports.insertUser = (req, res, next) => {
    var myObj=req.body;
    console.log(myObj)
    console.log('hi')
-    
-    Userdetail.create(myObj)
+   const saltrounds=10;
+   bcrypt.hash(myObj.password,saltrounds,(err,hash)=>{
+    if(!err){
+      myObj.password=hash;
+      Userdetail.create(myObj)
     .then(result=>{
       console.log('user created');
       res.redirect('/get-user')
@@ -13,6 +18,12 @@ exports.insertUser = (req, res, next) => {
     .catch(err => {
       console.log(err)
     })
+    }
+    console.log(err)
+
+   })
+    
+    
   };
 
 exports.getUser=(req,res,next)=>{
@@ -46,21 +57,28 @@ exports.loginUser = (req, res, next) => {
    if(result==undefined){
     res.status(404);
     response='User does not exist'
+    return res.json(response)
 }
 else{
     var pass= result.password
-    if(myObj.password=== pass){
-      res.status(200);
+    bcrypt.compare(myObj.password,pass,(err,result)=>{
+      if(err){
+        res.status(500);
+        response='Something went wrong'
+      }
+      if(result===true){
+        res.status(200);
         response='Logged in successfully'
-    }
-    else{
-      res.status(401);
-      response='Password  incorrect'
-
-    }
+      }
+      else{
+        res.status(401);
+        response='Password  incorrect'
+      }
+      return res.json(response)
+    })
+    
 }
-    console.log(userdetail[0])
-    res.json(response)       
+          
 })
 .catch(err=>console.log(err))
  };
