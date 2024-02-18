@@ -4,8 +4,6 @@ const bcrypt=require('bcrypt');
 
 exports.insertUser = (req, res, next) => {
    var myObj=req.body;
-   console.log(myObj)
-   console.log('hi')
    const saltrounds=10;
    bcrypt.hash(myObj.password,saltrounds,(err,hash)=>{
     if(!err){
@@ -15,15 +13,10 @@ exports.insertUser = (req, res, next) => {
       console.log('user created');
       res.redirect('/get-user')
     })
-    .catch(err => {
-      console.log(err)
-    })
+    .catch(err => {console.log(err) })
     }
     console.log(err)
-
-   })
-    
-    
+   }) 
   };
 
 exports.getUser=(req,res,next)=>{
@@ -42,43 +35,30 @@ exports.getUser=(req,res,next)=>{
     .catch(err=>console.log(err))
 }
 exports.loginUser = (req, res, next) => {
-  var myObj=req.body;
-  console.log(myObj)
-  console.log('hi')
-   
+  var myObj=req.body; 
   Userdetail.findAll({
     where:{
         email : myObj.email
     }
 })
 .then(userdetail=>{
-   var response=""
-   var result=userdetail[0]
-   if(result==undefined){
-    res.status(404);
-    response='User does not exist'
-    return res.json(response)
+   if(userdetail[0]==undefined){
+    res.status(404).json('User does not exist')
 }
 else{
-    var pass= result.password
+    var pass= userdetail[0].password
     bcrypt.compare(myObj.password,pass,(err,result)=>{
       if(err){
-        res.status(500);
-        response='Something went wrong'
+        res.status(500).json('Something went wrong')
       }
       if(result===true){
-        res.status(200);
-        response='Logged in successfully'
+        res.status(200).json('Logged in successfully')
       }
       else{
-        res.status(401);
-        response='Password  incorrect'
+        res.status(401).json('Password  incorrect') 
       }
-      return res.json(response)
-    })
-    
-}
-          
+    })  
+}        
 })
 .catch(err=>console.log(err))
  };
