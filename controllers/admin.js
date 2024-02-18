@@ -37,7 +37,7 @@ exports.getUser=(req,res,next)=>{
     .catch(err=>console.log(err))
 }
 function generateAccessToken(id, name){
-  return jwt.sign({userId:id, name:name})
+  return jwt.sign({userId:id, name:name},'secretkey')
 }
 exports.loginUser = (req, res, next) => {
   var myObj=req.body; 
@@ -48,19 +48,19 @@ exports.loginUser = (req, res, next) => {
 })
 .then(userdetail=>{
    if(userdetail[0]==undefined){
-    res.status(404).json('User does not exist')
+    res.status(404).json({message:'User does not exist'})
 }
 else{
     var pass= userdetail[0].password
     bcrypt.compare(myObj.password,pass,(err,result)=>{
       if(err){
-        res.status(500).json('Something went wrong')
+        res.status(500).json({message:'Something went wrong'})
       }
       if(result===true){
-        res.status(200).json('Logged in successfully', token: generateAccessToken(user[0].id), user[0].name)
+        res.status(200).json({message:'Logged in successfully', token: generateAccessToken(userdetail[0].id, userdetail[0].username)})
       }
       else{
-        res.status(401).json('Password  incorrect') 
+        res.status(401).json({message:'Password  incorrect'}) 
       }
     })  
 }        

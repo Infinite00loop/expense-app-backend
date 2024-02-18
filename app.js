@@ -17,10 +17,6 @@ app.use(expenseRoutes);
 Userdetail.hasMany(Expense);
 Expense.belongsTo(Userdetail);
 
-
-
-
-
 // sequelize.sync({force:true})
 sequelize.sync()
 .then(result=>{
