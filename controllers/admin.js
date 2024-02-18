@@ -2,6 +2,8 @@ const Userdetail=require('../models/userdetail');
 
 const bcrypt=require('bcrypt');
 
+const jwt = require('jsonwebtoken');
+
 exports.insertUser = (req, res, next) => {
    var myObj=req.body;
    const saltrounds=10;
@@ -34,6 +36,9 @@ exports.getUser=(req,res,next)=>{
     })
     .catch(err=>console.log(err))
 }
+function generateAccessToken(id, name){
+  return jwt.sign({userId:id, name:name})
+}
 exports.loginUser = (req, res, next) => {
   var myObj=req.body; 
   Userdetail.findAll({
@@ -52,7 +57,7 @@ else{
         res.status(500).json('Something went wrong')
       }
       if(result===true){
-        res.status(200).json('Logged in successfully')
+        res.status(200).json('Logged in successfully', token: generateAccessToken(user[0].id), user[0].name)
       }
       else{
         res.status(401).json('Password  incorrect') 
