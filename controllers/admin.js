@@ -13,7 +13,7 @@ exports.insertUser = (req, res, next) => {
       Userdetail.create(myObj)
     .then(result=>{
       console.log('user created');
-      res.redirect('/get-user')
+      res.json();
     })
     .catch(err => {console.log(err) })
     }
@@ -67,3 +67,9 @@ else{
 })
 .catch(err=>console.log(err))
  };
+
+exports.isPremiumUser= (req,res,next) =>{
+  res.status(201).json({isPremium: req.user.ispremiumuser}) 
+
+
+}
