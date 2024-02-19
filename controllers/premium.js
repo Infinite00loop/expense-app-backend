@@ -1,32 +1,29 @@
+const sequelize = require('../util/database');
+
+
 const Expense = require('../models/expense');
 const Userdetail=require('../models/userdetail');
 
 
-exports.getleaderboard = (req,res,next)=>{
-   Expense.findAll()
-    .then((expenses)=>{
-       const expenseMap=new Map()
-       const leaderboard=[]
-       expenses.forEach(expense => {
-        const userId=expense.userdetailId
-        const amount=expense.amount
-        if(expenseMap.has (userId)){
-            expenseMap.set(userId, expenseMap.get(userId)+amount)
-        }
-        else{
-           expenseMap.set(userId,amount) 
-        }
-       
-       });
-       Userdetail.findAll()
-       .then(users=>{
-        users.forEach(user =>{
-            leaderboard.push({"name": user.username, "amount":expenseMap.get(user.id)})
+exports.getleaderboard = async (req,res,next)=>{
+    try{
+        const leaderboard = await Userdetail.findAll({
+            attributes:['id','username',[sequelize.fn('sum', sequelize.col('expenses.amount')), 'amount']],
+            include:[
+                {
+                    model: Expense,
+                    attributes: []
+                } 
+            ],
+            group: ['userdetail.id'],
+            order:[['amount', 'DESC']]
         })
-        console.log(leaderboard)
-        return res.json(leaderboard)
-       })
-       .catch(err=>console.log(err))
-    })
-    .catch(err=>console.log(err));
+        res.status(200).json(leaderboard)
+
+    }
+    catch(err){
+        console.log(err)
+        res.status(500).json(err)
+    }
+   
 }
