@@ -22,6 +22,7 @@ const Userdetail = sequelize.define('userdetail', {
     type: Sequelize.STRING,
     allowNull: false
   },
+  totalexpense: Sequelize.INTEGER ,
   ispremiumuser: Sequelize.BOOLEAN
  
 });

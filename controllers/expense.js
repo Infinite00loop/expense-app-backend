@@ -4,6 +4,7 @@ exports.insertExpense = (req, res, next) => {
     let myObj=req.body;
    req.user.createExpense(myObj)
     .then(result=>{
+      req.user.update({totalexpense: (req.user.totalexpense || 0)+(+myObj.amount)})
       console.log('Created expense');
       res.redirect('/get-expense')
     })
