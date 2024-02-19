@@ -46,7 +46,8 @@ exports.updateTransactionStatus = (req,res) =>{
             throw new Error(err);
         })
     }
-    catch((err)=>{
-        throw new Error(err);
-    })
+    catch(err){
+        console.log(err);
+        res.status(403).json({message: 'Something went wrong', error:err})
+    }
 }
