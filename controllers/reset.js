@@ -1,36 +1,42 @@
+const bcrypt= require('bcrypt');
 const sequelize = require('../util/database');
 const Sib = require('sib-api-v3-sdk')
-
+const { v4: uuidv4 } = require('uuid');
 const Expense = require('../models/expense');
 const Userdetail=require('../models/userdetail');
+const FPR=require('../models/forgotpasswordrequest');
 
 
 exports.forgotpassword = async (req,res,next)=>{
     try{
+        const useremail= req.body.email
         const client = Sib.ApiClient.instance
-        const apikey = client.authentication['api-key']
+        const apikey = client.authentications['api-key']
         apikey.apiKey = process.env.API_KEY
         const tranEmailApi = new Sib.TransactionalEmailsApi()
+        const uuid= uuidv4()
+        const url= 'http://localhost:5000/password/resetpassword/'+uuid
+        const user= await Userdetail.findOne({ where : { email: useremail}})
+        await user.createForgotpasswordrequest({id: uuid,isactive: true});
+        console.log(url)
 
         const sender ={
-            email: 'samriddhisingh07092002@gmail.com',
+            email: useremail,
         }
-        const recievers = [
+        const receivers = [
             {
-                email: 'samriddhisingh07092002@gmail.com',
+                email: useremail,
             }
         ]
         const result=await tranEmailApi.sendTransacEmail({
             sender,
             to: receivers,
-            subject:` Automated email`,
-            textContent: `This is a {{params.test}} email`,
+            subject:` Reset your password`,
+            textContent: `Please click on this link to reset your password. {{params.reseturl}}`,
             params: {
-                test: 'test',
+                reseturl: url,
             }
         })
-        console.log("I am in forgot password")
-        console.log(res)
 
     }
     catch(err){
@@ -38,4 +44,52 @@ exports.forgotpassword = async (req,res,next)=>{
         res.status(500).json(err)
     }
    
+}
+exports.resetpassword = async (req,res,next)=>{
+    try{
+        const uid= req.params.uid
+        const request= await FPR.findByPk(uid)
+        if(request){
+            if(request.isactive){
+                res.redirect(`http://localhost:5500/reset/newpassword.html?uuid=${uid}` )
+            }
+            else{
+                throw new Error("Reset link expired");
+
+            }
+        }
+        else{
+            throw new Error("Reset request not found");
+        }
+
+    }
+    catch(err){
+        console.log(err)
+        res.status(500).json(err)
+    }
+}
+exports.newpassword=async (req,res,next)=>{
+    try{
+        const saltrounds=10;
+        const myObj=req.body;
+        bcrypt.hash(myObj.password,saltrounds,async (err,hash)=>{
+          if(!err){
+            myObj.password=hash;
+            const request=await FPR.findByPk(myObj.uuid);
+            if(request.isactive){
+                const user=await Userdetail.findByPk(request.userdetailId);
+                user.password=myObj.password;
+                await user.save();
+                request.isactive=false;
+                await request.save();
+            }
+            else{
+                throw new Error("Reset Link expired")
+            }
+          }
+        })
+    }catch(err){
+        console.log(err);
+        res.status(500).json(err)
+    }
 }

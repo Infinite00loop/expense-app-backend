@@ -13,6 +13,8 @@ const resetRoutes = require('./routes/reset');
 const Userdetail=require('./models/userdetail');
 const Expense=require('./models/expense');
 const Order=require('./models/order');
+const FPR=require('./models/forgotpasswordrequest');
+
 const app = express();
 app.use(cors());
 
@@ -30,6 +32,9 @@ Expense.belongsTo(Userdetail);
 
 Userdetail.hasMany(Order);
 Order.belongsTo(Userdetail);
+
+Userdetail.hasMany(FPR);
+FPR.belongsTo(Userdetail);
 
 // sequelize.sync({force:true})
 sequelize.sync()
