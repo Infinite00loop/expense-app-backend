@@ -12,6 +12,7 @@ const resetRoutes = require('./routes/reset');
 
 const Userdetail=require('./models/userdetail');
 const Expense=require('./models/expense');
+const Income = require('./models/income');
 const Order=require('./models/order');
 const FPR=require('./models/forgotpasswordrequest');
 
@@ -29,6 +30,9 @@ app.use('/password',resetRoutes);
 
 Userdetail.hasMany(Expense);
 Expense.belongsTo(Userdetail);
+
+Userdetail.hasMany(Income);
+Income.belongsTo(Userdetail);
 
 Userdetail.hasMany(Order);
 Order.belongsTo(Userdetail);

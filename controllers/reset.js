@@ -49,6 +49,7 @@ exports.resetpassword = async (req,res,next)=>{
     try{
         const uid= req.params.uid
         const request= await FPR.findByPk(uid)
+        console.log('hi')
         if(request){
             if(request.isactive){
                 res.redirect(`http://localhost:5500/reset/newpassword.html?uuid=${uid}` )

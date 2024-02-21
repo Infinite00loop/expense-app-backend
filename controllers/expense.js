@@ -1,6 +1,7 @@
 const sequelize = require('../util/database');
-
 const Expense = require('../models/expense');
+const Income = require('../models/income');
+
 
 exports.insertExpense = async (req, res, next) => {
   const t = await sequelize.transaction();
@@ -21,6 +22,23 @@ exports.insertExpense = async (req, res, next) => {
   }
     
   };
+  exports.insertIncome = async (req, res, next) => {
+    const t=await sequelize.transaction();
+    try{
+      let myObj = req.body
+      const result=await req.user.createIncome(myObj,{transaction : t})
+      await req.user.update({
+        totalincome: (req.user.totalincome || 0)+(+myObj.amount)},{transaction : t})
+      await t.commit();
+      console.log('Created income');
+      res.redirect('/get-income')
+    }catch(err){
+      await t.rollback();
+      console.log(err);
+      res.status(500).json("something went wrong"+err)
+    }
+  };
+  
 
 exports.deleteExpense = async (req,res,next)=>{
   const t = await sequelize.transaction();
@@ -44,19 +62,46 @@ exports.deleteExpense = async (req,res,next)=>{
      console.log(err)
      res.status(500).json(err)
   }
-   
     
+}
+exports.deleteIncome = async (req,res,next)=>{
+  const t=await sequelize.transaction();
+  try {
+    const id=req.params.id;
+    const amount=req.query.amount;
+
+    const income=await Income.destroy({
+      where: {
+        id: id,
+        userdetailId: req.user.id
+      }
+    },{transaction : t})
+    await req.user.update({
+      totalincome: (req.user.totalincome)-(+amount)},
+      {transaction : t})
+    await t.commit();
+    res.redirect('/get-income')    
+  } catch (err) {
+    await t.rollback();
+    console.log(err);
+    res.status(500).json("something went wrong"+err)    
+  }
+
 }
 
 exports.getExpense =(req,res,next)=>{
-    // Expense.findAll({
-    //     where:{
-    //         userdetailId: req.user.id
-    //     }
-    // })
     req.user.getExpenses()
     .then((result)=>{
         res.json(result)
     })
     .catch(err=>console.log(err));
+};
+
+exports.getIncome =(req,res,next)=>{
+  req.user.getIncomes()
+  .then((result)=>{
+    console.log("Incomes found")
+      res.json(result)
+  })
+  .catch(err=>console.log(err));
 };
