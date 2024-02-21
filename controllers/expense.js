@@ -8,6 +8,8 @@ exports.insertExpense = async (req, res, next) => {
 
   try{
     let myObj=req.body;
+    console.log("I am in insert expense");
+    console.log(req.user);
    const result= await req.user.createExpense(myObj, {transaction: t})
    await req.user.update({totalexpense: (req.user.totalexpense || 0)+(+myObj.amount)}, {transaction: t})
    await t.commit();

@@ -1,7 +1,6 @@
-const sequelize = require('../util/database');
-
-
+const Sequelize  = require('sequelize');
 const Expense = require('../models/expense');
+const Income = require('../models/income');
 const Userdetail=require('../models/userdetail');
 
 
@@ -19,4 +18,92 @@ exports.getleaderboard = async (req,res,next)=>{
         res.status(500).json(err)
     }
    
+}
+
+exports.getmonthlyreport= async (req,res,next)=>{
+    
+        try{
+            const Obj=req.query;
+            const year=Obj.year;
+            const month=Obj.month;
+            const startDate=new Date(year,month-1,1);
+            const endDate=new Date(year,month,0);
+            const userId=req.user.id;
+            const expenses=await Expense.findAll({
+                where:{
+                    userdetailId: userId,
+                    createdAt: {[Sequelize.Op.between]: [startDate, endDate]},
+                },
+                order:[['createdAt','ASC']],
+            });
+            const incomes=await Income.findAll({
+                where:{
+                    userdetailId: userId,
+                    createdAt: {[Sequelize.Op.between]: [startDate, endDate]},
+                },
+                order:[['createdAt','ASC']],
+            });
+            let records=[...expenses,...incomes]
+            records.sort((a,b)=>a.createdAt-b.createdAt);
+    
+            const response=records.map(record=>({
+                date: record.createdAt.toLocaleDateString('en-GB'),
+                category: record.category,
+                description: record.description,
+                income: record.category=="salary"?record.amount:"",
+                expense: record.category=="salary"?"":record.amount
+            }))
+            res.status(200).json(response)
+    
+        }catch(err){
+            console.log(err);
+            res.status(500).json(err)
+        }
+   
+}
+exports.getyearlyreport=async (req,res,next)=>{
+    try{
+        const Obj=req.query;
+        const year=Obj.year;
+        const month=Obj.month;
+        const startDate=new Date(year,0,1);
+        const endDate=new Date(year,11,31);
+        const userId=req.user.id;
+        const expenses=await Expense.findAll({
+            where:{
+                userdetailId: userId,
+                createdAt: {[Sequelize.Op.between]: [startDate, endDate]},                
+            }
+        });
+        const incomes=await Income.findAll({
+            where:{
+                userdetailId: userId,
+                createdAt: {[Sequelize.Op.between]: [startDate, endDate]},                
+            }
+        });
+        const yearReport=Array.from({length:12},()=>({
+            month: 0,
+            income: 0,
+            expense: 0,
+            savings: 0
+        }))
+        expenses.forEach(expense=>{
+            const currMonth=expense.createdAt.getMonth();
+            yearReport[currMonth].month=currMonth;
+            yearReport[currMonth].expense+=expense.amount;
+        });
+        incomes.forEach(income=>{
+            const currMonth=income.createdAt.getMonth();
+            yearReport[currMonth].month=currMonth;
+            yearReport[currMonth].income+=income.amount;
+        })
+        yearReport.forEach(report=>{
+            report.savings=report.income-report.expense;
+        })
+        const filteredReport=yearReport.filter(report=>report.income !==0 && report.expense !==0 && report.savings!==0)
+        res.status(200).json(filteredReport)
+    }catch(err){
+        console.log(err);
+        res.status(500).json(err)
+    }
 }
