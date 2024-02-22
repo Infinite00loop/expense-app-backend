@@ -1,4 +1,6 @@
 const Sequelize  = require('sequelize');
+const AWS= require('aws-sdk');
+const S3services = require('../services/S3services');
 const Expense = require('../models/expense');
 const Income = require('../models/income');
 const Userdetail=require('../models/userdetail');
@@ -105,5 +107,32 @@ exports.getyearlyreport=async (req,res,next)=>{
     }catch(err){
         console.log(err);
         res.status(500).json(err)
+    }
+}
+   
+exports.downloadexpense = async(req,res,next)=>{
+    try{
+        const Obj1= req.query;
+        const stringifiedExpenses= JSON.stringify(Obj1);
+        const userId = req.user.id;
+
+        const filename= `Expense${userId}/${new Date()}.txt`;
+        const fileUrl= await S3services.uploadToS3(stringifiedExpenses, filename);
+        await req.user.createDownload({name: filename, url:fileUrl})
+        res.status(200).json({fileUrl, success:true})
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({fileUrl:'', success:true, err:err})
+    }
+}
+exports.getdownload = async(req,res,next)=>{
+    try{
+        const downloads=await req.user.getDownloads();
+        res.status(200).json(downloads)
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({fileUrl:'', success:true, err:err})
     }
 }

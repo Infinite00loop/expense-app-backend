@@ -14,6 +14,7 @@ const Userdetail=require('./models/userdetail');
 const Expense=require('./models/expense');
 const Income = require('./models/income');
 const Order=require('./models/order');
+const Download=require('./models/download');
 const FPR=require('./models/forgotpasswordrequest');
 
 const app = express();
@@ -36,6 +37,9 @@ Income.belongsTo(Userdetail);
 
 Userdetail.hasMany(Order);
 Order.belongsTo(Userdetail);
+
+Userdetail.hasMany(Download);
+Download.belongsTo(Userdetail);
 
 Userdetail.hasMany(FPR);
 FPR.belongsTo(Userdetail);
