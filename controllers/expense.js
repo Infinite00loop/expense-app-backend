@@ -1,7 +1,6 @@
 const sequelize = require('../util/database');
 const Expense = require('../models/expense');
 const Income = require('../models/income');
-const ITEMS_PER_PAGE=3;
 
 exports.insertExpense = async (req, res, next) => {
   const t = await sequelize.transaction();
@@ -90,10 +89,20 @@ exports.deleteIncome = async (req,res,next)=>{
   }
 
 }
+exports.getIncome =(req,res,next)=>{
+  req.user.getIncomes()
+  .then((result)=>{
+    console.log("Incomes found")
+      res.json(result)
+  })
+  .catch(err=>console.log(err));
+};
 
 exports.getExpense =async (req,res,next)=>{
   try{
     const page=+req.query.page || 1;
+    const ITEMS_PER_PAGE= +req.query.itemsPerPage || 2;
+
     const totalItems=await Expense.count({
       where:{userdetailId: req.user.id}
     });
