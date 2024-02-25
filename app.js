@@ -28,6 +28,7 @@ const accessLogStream= fs.createWriteStream(
 );
 
 const app = express();
+app.use(express.static('public'));
 app.use(cors());
 app.use(helmet());
 app.use(compression());
@@ -40,6 +41,9 @@ app.use(expenseRoutes);
 app.use(purchaseRoutes);
 app.use('/premium',premiumRoutes);
 app.use('/password',resetRoutes);
+app.use((req,res)=>{
+    res.redirect(`http://${req.hostname}:5000/login/login.html`);
+})
 
 
 Userdetail.hasMany(Expense);
