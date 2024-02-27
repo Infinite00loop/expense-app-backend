@@ -7,15 +7,14 @@ function onReset(){
             axios.post(`${api_endpoint}password/forgotpassword`,myObj)
             .then((res)=> {
                 alert('reset link send')
-                // localStorage.setItem('token', res.data.token)
-                // window.location.href="../ExpenseTracker/expense.html"
             })
             .catch((err)=> alert(err));
            
         }
        
 }
-async function onSet(){
+async function onSet(e){
+    e.preventDefault();
     try{
         const currentUrl = window.location.href;
     let paramString = currentUrl.split('?')[1];

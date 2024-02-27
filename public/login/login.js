@@ -1,4 +1,5 @@
-function onlogin(){
+function onlogin(e){
+    e.preventDefault();
     var email_=document.getElementById('idx1').value;
     var password_=document.getElementById('idx2').value;
    

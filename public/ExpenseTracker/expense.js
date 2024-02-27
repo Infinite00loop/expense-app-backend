@@ -180,18 +180,17 @@ function removeElement(e){
     }
    
 }
-document.getElementById('idk5').onclick= async function(e){
-    const token= localStorage.getItem('token')
+document.getElementById('idk5').onclick= async function(e){  //onclick function for buy premium button
     const response= await axios.get(`${api_endpoint}premiummembership`,{headers:  {"authorization": token}})
     console.log(response);
     var options=
     {
         "key":response.data.key_id,
         "order_id":response.data.order.id,
-        "handler":async function (response){
+        "handler":async function (res){
             await axios.post(`${api_endpoint}updatetransactionstatus`,{
                 order_id: options.order_id,
-                payment_id: response.razorpay_payment_id,
+                payment_id: res.razorpay_payment_id,
             },{ headers: {"authorization": token}})
 
             alert('You unlocked the premium features')
