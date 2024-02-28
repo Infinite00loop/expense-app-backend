@@ -15,7 +15,7 @@ exports.forgotpassword = async (req,res,next)=>{
         apikey.apiKey = process.env.API_KEY
         const tranEmailApi = new Sib.TransactionalEmailsApi()
         const uuid= uuidv4()
-        const url= 'http://localhost:5000/password/resetpassword/'+uuid
+        const url= `http://${req.hostname}/password/resetpassword/`+uuid
         const user= await Userdetail.findOne({ where : { email: useremail}})
         await user.createForgotpasswordrequest({id: uuid,isactive: true});
         console.log(url)
