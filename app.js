@@ -43,7 +43,7 @@ app.use('/premium',premiumRoutes);
 app.use('/password',resetRoutes);
 app.use((req,res)=>{
     const hostname=(req.hostname==='localhost'?'localhost:5000':req.hostname)
-    res.redirect(`http://${hostname}:5000/login/login.html`);
+    res.redirect(`http://${hostname}/login/login.html`);
 })
 
 
