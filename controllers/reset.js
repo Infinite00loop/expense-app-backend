@@ -54,7 +54,7 @@ exports.resetpassword = async (req,res,next)=>{
         if(request){
             if(request.isactive){
                 const hostname=(req.hostname==='localhost'?'localhost:5500':req.hostname)
-                res.redirect(`http://${hostname}/Reset/newpassword.html?uuid=${uid}`)
+                res.redirect(`http://${hostname}/reset/newpassword.html?uuid=${uid}`)
             }
             else{
                 throw new Error("Reset link expired");
