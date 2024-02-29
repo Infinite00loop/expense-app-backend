@@ -56,7 +56,7 @@ exports.deleteExpense = async (req,res,next)=>{
     await req.user.update({totalexpense: (req.user.totalexpense)-(+amount)}, {transaction: t})
     await t.commit();
       console.log(expense);
-        res.redirect('/get-expense')
+        res.json()
   }
   catch(err){
     await t.rollback();
@@ -81,7 +81,7 @@ exports.deleteIncome = async (req,res,next)=>{
       totalincome: (req.user.totalincome)-(+amount)},
       {transaction : t})
     await t.commit();
-    res.redirect('/get-income')    
+    res.json()
   } catch (err) {
     await t.rollback();
     console.log(err);
