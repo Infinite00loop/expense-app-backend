@@ -14,7 +14,6 @@ const purchaseRoutes = require('./routes/purchase');
 const premiumRoutes = require('./routes/premium');
 const resetRoutes = require('./routes/reset');
 
-
 const Userdetail=require('./models/userdetail');
 const Expense=require('./models/expense');
 const Income = require('./models/income');
