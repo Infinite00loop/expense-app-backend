@@ -27,5 +27,8 @@ async function onsignup(e){
             }
            
         }
+        else{
+            alert('Please fill the empty fields!')
+        }
        
 }

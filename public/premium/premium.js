@@ -61,7 +61,7 @@ async function getMonthlyReport(){
     tr=document.createElement('tr');
     td1=document.createElement('td');
     td1.colSpan=5;
-    td1.textContent=Savings = `₹${totalIncome-totalExpense}`
+    td1.textContent=`Savings = ₹${totalIncome-totalExpense}`
     td1.style.textAlign='right';
     tr.appendChild(td1);
     monthly.appendChild(tr)
@@ -114,18 +114,9 @@ window.addEventListener('DOMContentLoaded',()=>{
    
 })
 
- async function download(){
-    // const element = document.body;
-    // html2pdf()
-    //     .from(element)
-    //     .set({ 
-    //         filename: `report${months[(+month)-1]}-${year}.pdf`,
-    //         html2canvas: { scale: 2 },
-    //         jsPDF: { unit: 'pt', format: 'a4', orientation: 'landscape' } 
-    //     })
-
-    //     .save();    
+ async function download(e){  
     try{
+        e.preventDefault();
         const response=await axios.get(`${api_endpoint}premium/download`, {params: Obj1, headers: {"authorization": token}});
         if(response.status === 200){
             var a= document.createElement("a");

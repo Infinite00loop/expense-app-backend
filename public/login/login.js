@@ -17,6 +17,9 @@ function onlogin(e){
             .catch((err)=> alert(err.response.data.message));
            
         }
+        else{
+          alert('Please fill the empty fields!') 
+        }
        
 }
 

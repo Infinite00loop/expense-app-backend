@@ -15,7 +15,8 @@ exports.forgotpassword = async (req,res,next)=>{
         apikey.apiKey = process.env.API_KEY
         const tranEmailApi = new Sib.TransactionalEmailsApi()
         const uuid= uuidv4()
-        const url= `http://${req.hostname}/password/resetpassword/`+uuid
+        const hostname=(req.hostname==='localhost'?'localhost:5000':req.hostname)
+        const url=`http://${hostname}/password/resetpassword/`+uuid;
         const user= await Userdetail.findOne({ where : { email: useremail}})
         await user.createForgotpasswordrequest({id: uuid,isactive: true});
         console.log(url)
@@ -37,7 +38,7 @@ exports.forgotpassword = async (req,res,next)=>{
                 reseturl: url,
             }
         })
-
+        res.json();
     }
     catch(err){
         console.log(err)
@@ -52,7 +53,8 @@ exports.resetpassword = async (req,res,next)=>{
         console.log('hi')
         if(request){
             if(request.isactive){
-                res.redirect(`http://${req.hostname}/reset/newpassword.html?uuid=${uid}` )
+                const hostname=(req.hostname==='localhost'?'localhost:5500':req.hostname)
+                res.redirect(`http://${hostname}/Reset/newpassword.html?uuid=${uid}`)
             }
             else{
                 throw new Error("Reset link expired");
@@ -83,6 +85,7 @@ exports.newpassword=async (req,res,next)=>{
                 await user.save();
                 request.isactive=false;
                 await request.save();
+                res.json();
             }
             else{
                 throw new Error("Reset Link expired")
