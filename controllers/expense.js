@@ -89,13 +89,16 @@ exports.deleteIncome = async (req,res,next)=>{
   }
 
 }
-exports.getIncome =(req,res,next)=>{
-  req.user.getIncomes()
-  .then((result)=>{
+exports.getIncome = async (req,res,next)=>{
+  try{
+    const result= await req.user.getIncomes()
     console.log("Incomes found")
-      res.json(result)
-  })
-  .catch(err=>console.log(err));
+    res.json(result)
+    
+  }
+  catch(err){
+    console.log('Something went wrong',err)
+  }
 };
 
 exports.getExpense =async (req,res,next)=>{

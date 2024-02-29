@@ -1,18 +1,18 @@
-function onReset(e){
-    e.preventDefault();
-    var email_=document.getElementById('idr1').value;   
-    let myObj={
-        email: email_
-    };
+async function onReset(e){
+    try{
+        e.preventDefault();
+        var email_=document.getElementById('idr1').value;   
+        let myObj={
+            email: email_
+        };
         if(email_!='' ){
-            axios.post(`${api_endpoint}password/forgotpassword`,myObj)
-            .then((res)=> {
-                alert("Thank you! Please check your email inbox for further instruction.")
-            })
-            .catch((err)=> alert(err));
-           
+            await axios.post(`${api_endpoint}password/forgotpassword`,myObj)
+            alert("Thank you! Please check your email inbox for further instruction.")
         }
-       
+    }
+    catch(err){
+      console.log('Something went wrong',err)
+    }     
 }
 async function onSet(e){
     e.preventDefault();

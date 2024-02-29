@@ -14,95 +14,85 @@ function itemsPerPage(){
     localStorage.setItem('itemsPerPage',noOfItems)
     getExpense(1)
   }
-function getExpense(page){
-    list.innerHTML=''
-    axios.get(`${api_endpoint}get-expense/?page=${page}&itemsPerPage=${localStorage.getItem('itemsPerPage')}`, { headers: {"authorization": token}})
-    .then(
-        (response)=>{
-            for(var i=0;i<response.data.expenses.length;i++){
-                showData(response.data.expenses[i]);
-            }
-            console.log(response.data)
-            showPagination(response.data)
+async function getExpense(page){
+    try{
+        list.innerHTML=''
+        const response= await axios.get(`${api_endpoint}get-expense/?page=${page}&itemsPerPage=${localStorage.getItem('itemsPerPage')}`, { headers: {"authorization": token}})
+        for(var i=0;i<response.data.expenses.length;i++){
+            showData(response.data.expenses[i]);
         }
-    )
-    .catch(
-        (err)=>console.log(err)
-    )
+        console.log(response.data)
+        showPagination(response.data)
+    }
+    catch(err){
+      console.log('Something went wrong',err)
+    }
 }
-function getDownload(){
-    console.log("hi i am token")
-    console.log(token)
-    axios.get(`${api_endpoint}premium/getdownload`,{headers:{"authorization": token}})
-    .then(
-        (response)=>{
+async function getDownload(){
+    try{
+        const response= await axios.get(`${api_endpoint}premium/getdownload`,{headers:{"authorization": token}})
             for(var i=0;i<response.data.length;i++){
                 showDownload(response.data[i]);
             }
-            
-        }
-    )
-    .catch(
-        (err)=>console.log(err)
-    )
+    }
+    catch(err){
+      console.log('Something went wrong',err)
+    }
 }
-function getSalary(){
-    incomelist.innerHTML = "";
-    axios.get(`${api_endpoint}get-income`,{headers:{"authorization": token}})
-    .then(
-        (response)=>{
+async function getSalary(){
+    try{
+        incomelist.innerHTML = "";
+        const response= await axios.get(`${api_endpoint}get-income`,{headers:{"authorization": token}})
             for(var i=0;i<response.data.length;i++){
                 showData(response.data[i]);
             }
-        }
-    )
-    .catch(
-        (err)=>console.log(err)
-    )
+    }
+    catch(err){
+      console.log('Something went wrong',err)
+    }
+    
 }
 
-window.addEventListener('DOMContentLoaded',()=>{
-    axios.post(`${api_endpoint}ispremium`,{}, { headers: {"authorization": token}})
-    .then((res)=>{
+window.addEventListener('DOMContentLoaded',async ()=>{
+    try{
+        const res= await axios.post(`${api_endpoint}ispremium`,{}, { headers: {"authorization": token}})
         if(res.data.isPremium===true){
             document.getElementById('idk5').style.display= 'none'
             document.getElementById('idk6').style.display= 'block'
-
         }
-    })
-    .catch((err)=>console.log(err));
-    document.getElementById('idk11').value=localStorage.getItem('itemsPerPage')||2;
-    getExpense(1);
-    getSalary();
-    getDownload();
-
+        document.getElementById('idk11').value=localStorage.getItem('itemsPerPage')||2;
+        getExpense(1);
+        getSalary();
+        getDownload();
+    }
+    catch(err){
+      console.log('Something went wrong',err)
+    }
 })
 
-function tracker(){
-    var expAmount_=document.getElementById('idk1').value;
-    var desc_=document.getElementById('idk2').value;
-    var categ_=document.getElementById('idk3').value;
-
-    let myObj={
-        amount: expAmount_,
-        description: desc_,
-        category: categ_
-    };
-
-    if(categ_=="salary"){
-        axios.post(`${api_endpoint}insert-income`,myObj,{headers:{"authorization": token}})
-        .then((res)=>{
+async function tracker(){
+    try{
+        var expAmount_=document.getElementById('idk1').value;
+        var desc_=document.getElementById('idk2').value;
+        var categ_=document.getElementById('idk3').value;
+        let myObj={
+            amount: expAmount_,
+            description: desc_,
+            category: categ_
+        };
+        if(categ_=="salary"){
+            await axios.post(`${api_endpoint}insert-income`,myObj,{headers:{"authorization": token}})
             console.log("about to print salary")
             getSalary();
-        })
-        .catch((err)=>console.log(err));
+        }
+        else{
+            await axios.post(`${api_endpoint}insert-expense`,myObj,{headers:{"authorization": token}})
+            getExpense();
+        }
     }
-    else{
-        axios.post(`${api_endpoint}insert-expense`,myObj,{headers:{"authorization": token}})
-        .then((res)=>getExpense())
-        .catch((err)=>console.log(err));
-    }
-    
+    catch(err){
+      console.log('Something went wrong',err)
+    } 
 } 
 function showPagination({
     currentPage,
@@ -155,27 +145,28 @@ function showData(myObj){
     }}
 
 
-function removeElement(e){
-    if(e.target.classList.contains('delete')){
-        if(confirm('Are you sure to delete ?')){
-            var li=e.target.parentElement;
-           const id=li.getAttribute('item-id')
-           const amount=li.getAttribute('item-amount')
-           const categ=li.getAttribute('item-category')
-
-           if(categ=="salary"){
-            axios.delete(`${api_endpoint}delete-income/${id}`,{params: {amount : amount},headers:{"authorization": token}})
-            .then(res=>console.log(res))
-            .catch(err=>console.log(err))
-            incomelist.removeChild(li);
+async function removeElement(e){
+    try{
+        if(e.target.classList.contains('delete')){
+            if(confirm('Are you sure to delete ?')){
+                var li=e.target.parentElement;
+               const id=li.getAttribute('item-id')
+               const amount=li.getAttribute('item-amount')
+               const categ=li.getAttribute('item-category')
+    
+            if(categ=="salary"){
+                await axios.delete(`${api_endpoint}delete-income/${id}`,{params: {amount : amount},headers:{"authorization": token}})
+                incomelist.removeChild(li);
+            }
+            else{
+                await axios.delete(`${api_endpoint}delete-expense/${id}`,{params: {amount : amount},headers:{"authorization": token}})
+                list.removeChild(li);
+            }
+            }
         }
-        else{
-            axios.delete(`${api_endpoint}delete-expense/${id}`,{params: {amount : amount},headers:{"authorization": token}})
-            .then(res=>console.log(res))
-            .catch(err=>console.log(err))
-            list.removeChild(li);
-        }
-        }
+    }
+    catch(err){
+      console.log('Something went wrong',err)
     }
    
 }
