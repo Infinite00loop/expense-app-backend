@@ -122,6 +122,23 @@ function showPagination({
         btn3.addEventListener('click',()=>getExpense(nextPage))
         pagination.appendChild(btn3)
     }
+    if (lastPage - nextPage >= 2) {
+        const ellipsis = document.createElement('span');
+        ellipsis.innerHTML = '  .   .   .   .   .   .   .  ';
+        pagination.appendChild(ellipsis);
+        const lastPageBtn = document.createElement('button');
+        lastPageBtn.innerHTML = lastPage;
+        lastPageBtn.className = "btn btn-secondary";
+        lastPageBtn.addEventListener('click', () => getExpense(lastPage));
+        pagination.appendChild(lastPageBtn);
+    }
+    if (lastPage - nextPage === 1) {
+        const lastPageBtn = document.createElement('button');
+        lastPageBtn.innerHTML = lastPage;
+        lastPageBtn.className = "btn btn-secondary";
+        lastPageBtn.addEventListener('click', () => getExpense(lastPage));
+        pagination.appendChild(lastPageBtn);
+    }
 }
 
 function showData(myObj){
