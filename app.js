@@ -61,8 +61,8 @@ Download.belongsTo(Userdetail);
 Userdetail.hasMany(FPR);
 FPR.belongsTo(Userdetail);
 
-sequelize.sync({force:true})
-// sequelize.sync()
+// sequelize.sync({force:true})
+sequelize.sync()
 .then(result=>{
     //console.log(result);
     app.listen(process.env.PORT_NO || 5000);
